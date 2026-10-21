@@ -39,71 +39,27 @@ The original motivation was to streamline the process of accepting a Dependabot 
 
 ### Basic Example
 
-Add a workflow file (e.g. `.github/workflows/release.yml`) to your repository:
+Add a workflow file (e.g. `.github/workflows/release-on-merge.yml`) to your repository:
 
 ```yaml
-name: Release on Merge
+name: Release on merge
 
 on:
-  pull_request:
-    types: [closed]
+   pull_request:
+      types: [closed]
 
 jobs:
-  release:
-    if: github.event.pull_request.merged == true
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: read
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+   release:
+      # Optional since release-on-merge-action will also narrow on the event state
+      if: github.event.pull_request.merged == true
+      runs-on: ubuntu-latest
+      steps:
+         - name: Checkout code
+           uses: actions/checkout@v7
 
-      - name: Create Release
-        id: release
-        uses: ./ # or owner/release-on-merge-action@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Log Release Version
-        if: steps.release.outputs.release-version != ''
-        run: |
-          echo "Successfully released version: ${{ steps.release.outputs.release-version }}"
-```
-
-### Dry Run Example
-
-Preview the calculated version without creating a release or modifying Git tags:
-
-```yaml
-name: Preview Release
-
-on:
-  pull_request:
-    types: [closed]
-
-jobs:
-  dry-run-release:
-    if: github.event.pull_request.merged == true
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pull-requests: read
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Calculate Next Version
-        id: release
-        uses: ./ # or owner/release-on-merge-action@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          dry-run: true
-
-      - name: Display Next Version
-        if: steps.release.outputs.release-version != ''
-        run: |
-          echo "Next release version would be: ${{ steps.release.outputs.release-version }}"
+         - name: Run Release on Merge Action
+           id: release-on-merge
+           uses: itzg/release-on-merge-action@v1.1.0
 ```
 
 ### Triggering Workflows on Release Creation (Using a PAT)
@@ -112,9 +68,41 @@ Events triggered by the default `GITHUB_TOKEN` do not trigger new workflow runs.
 
 ```yaml
 - name: Create Release
-  uses: ./ # or owner/release-on-merge-action@v1
+  uses: itzg/release-on-merge-action@v1.1.0
   with:
-    token: ${{ secrets.RELEASE_PAT }}
+    token: ${{ secrets.GH_RELEASE_TOKEN }}
+```
+
+### Full example
+
+```yaml
+name: Release on merge
+
+on:
+   pull_request:
+      types: [closed]
+
+jobs:
+   release:
+      # Optional since release-on-merge-action will also narrow on the event state
+      if: github.event.pull_request.merged == true
+      runs-on: ubuntu-latest
+      steps:
+         - name: Checkout code
+           uses: actions/checkout@v7
+
+         - name: Run Release on Merge Action
+           id: release-on-merge
+           uses: itzg/release-on-merge-action@v1.1.0
+           with:
+              # Be sure to allocate and assign a Personal Access Token with write access to the repository.
+              # Required when the creation of the release will need to trigger another Github workflow.
+              token: ${{ secrets.GH_RELEASE_TOKEN }}
+
+         - name: Display Release Output
+           if: steps.release-on-merge.outputs.release-version != ''
+           run: |
+              echo "Created release version: ${{ steps.release-on-merge.outputs.release-version }}"
 ```
 
 ---

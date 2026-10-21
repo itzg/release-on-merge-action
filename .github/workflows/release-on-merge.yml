@@ -1,0 +1,23 @@
+name: Test Action Locally
+
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run Release on Merge Action
+        id: release-on-merge
+        uses: ./
+        with:
+          token: ${{ secrets.GH_RELEASE_TOKEN }}
+
+      - name: Display Release Output
+        if: steps.release-on-merge.outputs.release-version != ''
+        run: |
+          echo "Created release version: ${{ steps.release-on-merge.outputs.release-version }}"
