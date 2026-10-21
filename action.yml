@@ -1,0 +1,21 @@
+name: Release on Merge
+description: Creates a release based on merged PR labels
+
+inputs:
+  token:
+    description: |
+      Github token to use for release operations. When needing to trigger another workflow
+      that is triggered by a tag push, then specify a personal access token.
+    default: ${{ github.token }}
+  dry-run:
+    description: |
+      When enabled, calculates the next release version and sets outputs without creating the release.
+    default: 'false'
+
+outputs:
+  release-version:
+    description: The version of the release that was created
+
+runs:
+  using: node20
+  main: dist/index.js

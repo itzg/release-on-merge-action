@@ -1,0 +1,19 @@
+{
+  "action": "closed",
+  "pull_request": {
+    "number": 4,
+    "merged": false,
+    "title": "Closed without merge",
+    "labels": [
+      {
+        "name": "release/patch"
+      }
+    ]
+  },
+  "repository": {
+    "name": "release-on-merge-action",
+    "owner": {
+      "login": "octocat"
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "action": "closed",
+  "pull_request": {
+    "number": 2,
+    "merged": true,
+    "title": "Add new feature",
+    "labels": [
+      {
+        "name": "release/minor"
+      }
+    ]
+  },
+  "repository": {
+    "name": "release-on-merge-action",
+    "owner": {
+      "login": "octocat"
+    }
+  }
+}

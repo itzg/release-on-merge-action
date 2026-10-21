@@ -1,0 +1,19 @@
+{
+  "action": "closed",
+  "pull_request": {
+    "number": 5,
+    "merged": true,
+    "title": "Internal chore without release",
+    "labels": [
+      {
+        "name": "chore"
+      }
+    ]
+  },
+  "repository": {
+    "name": "release-on-merge-action",
+    "owner": {
+      "login": "octocat"
+    }
+  }
+}

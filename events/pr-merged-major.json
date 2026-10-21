@@ -1,0 +1,19 @@
+{
+  "action": "closed",
+  "pull_request": {
+    "number": 3,
+    "merged": true,
+    "title": "Breaking changes",
+    "labels": [
+      {
+        "name": "release/major"
+      }
+    ]
+  },
+  "repository": {
+    "name": "release-on-merge-action",
+    "owner": {
+      "login": "octocat"
+    }
+  }
+}
