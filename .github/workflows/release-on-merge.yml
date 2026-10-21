@@ -1,15 +1,15 @@
-name: Test Action Locally
+name: Release on merge
 
 on:
   pull_request:
     types: [closed]
 
 jobs:
-  test:
+  release:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Run Release on Merge Action
         id: release-on-merge
