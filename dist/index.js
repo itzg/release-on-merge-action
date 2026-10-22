@@ -37056,11 +37056,14 @@ class ReleaseOnMerge {
         setOutput("release-version", newVersion);
     }
     async createRelease(newVersion) {
+        const targetCommitish = this.context.payload.pull_request?.merge_commit_sha || this.context.sha;
+        debug(`Target commitish for release ${newVersion}: ${targetCommitish}`);
         await this.githubRest().repos.createRelease({
             owner: this.context.repo.owner,
             repo: this.context.repo.repo,
             tag_name: newVersion,
             name: newVersion,
+            target_commitish: targetCommitish,
             generate_release_notes: true,
         });
     }

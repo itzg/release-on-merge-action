@@ -6,7 +6,7 @@ The original motivation was to streamline the process of accepting a Dependabot 
 
 ## Features
 
-- **Automated Releases**: Creates a new GitHub Release with automatically generated release notes when a labeled PR is merged.
+- **Automated Releases**: Creates a new GitHub Release with automatically generated release notes when a labeled PR is merged. The merged commit is used as the release-tag to ensure a concurrent merge does not interfere with the release.
 - **Semantic Versioning**: Automatically calculates the next semantic version (`patch`, `minor`, or `major`) based on the repository's latest release.
 - **Prefix Preservation**: Retains version prefix formatting (e.g., `v1.2.3` vs `1.2.3`) matching your repository's existing release naming style.
 - **Dry Run Support**: Test release calculation and downstream steps without creating an actual release or tag.
@@ -54,9 +54,6 @@ jobs:
       if: github.event.pull_request.merged == true
       runs-on: ubuntu-latest
       steps:
-         - name: Checkout code
-           uses: actions/checkout@v7
-
          - name: Run Release on Merge Action
            id: release-on-merge
            uses: itzg/release-on-merge-action@v1.1.0
@@ -88,9 +85,6 @@ jobs:
       if: github.event.pull_request.merged == true
       runs-on: ubuntu-latest
       steps:
-         - name: Checkout code
-           uses: actions/checkout@v7
-
          - name: Run Release on Merge Action
            id: release-on-merge
            uses: itzg/release-on-merge-action@v1.1.0
