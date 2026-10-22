@@ -38,19 +38,25 @@ describe("ReleaseOnMerge", () => {
     eventName?: string;
     merged?: boolean;
     labels?: { name: string }[];
+    sha?: string;
+    mergeCommitSha?: string;
   } = {}) => {
     const {
       eventName = "pull_request",
       merged = true,
       labels = [{ name: "release/patch" }],
+      sha,
+      mergeCommitSha,
     } = options;
 
     return {
       eventName,
+      sha,
       payload: {
         pull_request: {
           merged,
           labels,
+          merge_commit_sha: mergeCommitSha,
         } as any,
       },
       repo: {
@@ -488,6 +494,93 @@ describe("ReleaseOnMerge", () => {
       expect(core.info).toHaveBeenCalledWith("Dry run enabled: not creating release for 2.0.0");
       expect(core.setOutput).toHaveBeenCalledWith("release-version", "2.0.0");
       expect(core.setFailed).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("target_commitish", () => {
+    it("should pass merge_commit_sha as target_commitish when present in pull_request payload", async () => {
+      const mockContext = createGithubContext({
+        eventName: "pull_request",
+        merged: true,
+        labels: [{ name: "release/patch" }],
+        mergeCommitSha: "abc123merge",
+      });
+
+      mockGetLatestRelease.mockResolvedValueOnce({
+        data: { name: "v1.0.0" },
+      });
+      mockCreateRelease.mockResolvedValueOnce({
+        data: { id: 100 },
+      });
+
+      const action = new ReleaseOnMerge(mockOctokit, mockContext);
+      await action.run();
+
+      expect(mockCreateRelease).toHaveBeenCalledWith({
+        owner,
+        repo,
+        tag_name: "v1.0.1",
+        name: "v1.0.1",
+        target_commitish: "abc123merge",
+        generate_release_notes: true,
+      });
+    });
+
+    it("should fallback to context.sha as target_commitish when merge_commit_sha is not present", async () => {
+      const mockContext = createGithubContext({
+        eventName: "pull_request",
+        merged: true,
+        labels: [{ name: "release/patch" }],
+        sha: "def456context",
+      });
+
+      mockGetLatestRelease.mockResolvedValueOnce({
+        data: { name: "v1.0.0" },
+      });
+      mockCreateRelease.mockResolvedValueOnce({
+        data: { id: 100 },
+      });
+
+      const action = new ReleaseOnMerge(mockOctokit, mockContext);
+      await action.run();
+
+      expect(mockCreateRelease).toHaveBeenCalledWith({
+        owner,
+        repo,
+        tag_name: "v1.0.1",
+        name: "v1.0.1",
+        target_commitish: "def456context",
+        generate_release_notes: true,
+      });
+    });
+
+    it("should prefer merge_commit_sha over context.sha when both are present", async () => {
+      const mockContext = createGithubContext({
+        eventName: "pull_request",
+        merged: true,
+        labels: [{ name: "release/patch" }],
+        mergeCommitSha: "abc123merge",
+        sha: "def456context",
+      });
+
+      mockGetLatestRelease.mockResolvedValueOnce({
+        data: { name: "v1.0.0" },
+      });
+      mockCreateRelease.mockResolvedValueOnce({
+        data: { id: 100 },
+      });
+
+      const action = new ReleaseOnMerge(mockOctokit, mockContext);
+      await action.run();
+
+      expect(mockCreateRelease).toHaveBeenCalledWith({
+        owner,
+        repo,
+        tag_name: "v1.0.1",
+        name: "v1.0.1",
+        target_commitish: "abc123merge",
+        generate_release_notes: true,
+      });
     });
   });
 });
