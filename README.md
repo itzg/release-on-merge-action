@@ -26,14 +26,14 @@ The original motivation was to streamline the process of accepting a Dependabot 
 6. Sets the `release-version` output.
 
 ```
-Previous                              
-release                               
-======                        Released
-v1.5.3       PR Label         version 
- ▲ ▲ ▲       =============    ======  
- │ │ └────── release/patch -> v1.5.4  
- │ └──────── release/minor -> v1.6.0  
- └────────── release/major -> v2.0.0  
+Previous                               
+release                                
+======                         Released
+v1.5.3        PR Label         version 
+ │ │ │        =============    ======  
+ │ │ └──────► release/patch -> v1.5.4  
+ │ └────────► release/minor -> v1.6.0  
+ └──────────► release/major -> v2.0.0  
 ```
 
 ---
