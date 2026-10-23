@@ -1,27 +1,40 @@
 # Release on Merge Action
 
-A GitHub Action that automatically creates semantic versioned GitHub Releases and tags when a pull request is merged, based on PR release labels.
+A GitHub Action that automatically creates semantic versioned GitHub Releases when a pull request is merged **with PR release labels**.
 
 The original motivation was to streamline the process of accepting a Dependabot or Renovate dependency update PR and subsequently bumping the release version of the project to pick up the change. 
 
 ## Features
 
+- **Semantic Versioning**: Automatically calculates the next requested semantic version (`patch`, `minor`, or `major`) based on the repository's latest release.
 - **Automated Releases**: Creates a new GitHub Release with automatically generated release notes when a labeled PR is merged. The merged commit is used as the release-tag to ensure a concurrent merge does not interfere with the release.
-- **Semantic Versioning**: Automatically calculates the next semantic version (`patch`, `minor`, or `major`) based on the repository's latest release.
 - **Prefix Preservation**: Retains version prefix formatting (e.g., `v1.2.3` vs `1.2.3`) matching your repository's existing release naming style.
-- **Dry Run Support**: Test release calculation and downstream steps without creating an actual release or tag.
 - **Step Outputs**: Exports the calculated/created version string (`release-version`) for downstream workflow jobs.
 
 ---
 
 ## How It Works
 
+> ![NOTE]
+> The action will quietly do nothing if a `release/*` label is not present on the PR.
+
 1. The action triggers when a pull request is closed and merged.
 2. It inspects the labels on the pull request for a label starting with `release/` (`release/patch`, `release/minor`, or `release/major`).
-3. If a valid release label is present, it fetches the repository's latest release. It's completely normal to not include a release label if no release will be needed from the merged PR.
+3. If a valid release label is present, it fetches the repository's latest release.
 4. It parses the semantic version and increments it according to the label type.
 5. Unless `dry-run` is enabled, it creates a new GitHub Release with the incremented tag/name and automatically generated release notes.
 6. Sets the `release-version` output.
+
+```
+Previous                              
+release                               
+======                        Released
+v1.5.3       PR Label         version 
+ ▲ ▲ ▲       =============    ======  
+ │ │ └────── release/patch -> v1.5.4  
+ │ └──────── release/minor -> v1.6.0  
+ └────────── release/major -> v2.0.0  
+```
 
 ---
 
