@@ -45,7 +45,7 @@ Add a workflow file (e.g. `.github/workflows/release-on-merge.yml`) to your repo
 name: Release on merge
 
 on:
-   pull_request:
+   pull_request_target:
       types: [closed]
 
 jobs:
@@ -58,6 +58,9 @@ jobs:
            id: release-on-merge
            uses: itzg/release-on-merge-action@v1.1.0
 ```
+
+> [!IMPORTANT]
+> The `pull_request_target` event is used to trigger workflows from pull requests targeting the base branch. This event runs in the context of the base repository, which means it can access secrets and environment variables from the base repository. However, it does not have access to secrets and environment variables from the pull request repository.
 
 ### Triggering Workflows on Release Creation (Using a PAT)
 
@@ -76,7 +79,7 @@ Events triggered by the default `GITHUB_TOKEN` do not trigger new workflow runs.
 name: Release on merge
 
 on:
-   pull_request:
+   pull_request_target:
       types: [closed]
 
 jobs:

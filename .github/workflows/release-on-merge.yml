@@ -1,17 +1,13 @@
 name: Release on merge
 
 on:
-  pull_request:
+  pull_request_target:
     types: [closed]
 
 jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      # This workflow needs a checkout since it executes itself as the action
-      - name: Checkout
-        uses: actions/checkout@v7
-
       - name: Run Release on Merge Action
         id: release-on-merge
         uses: ./
