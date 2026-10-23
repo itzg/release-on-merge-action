@@ -15,7 +15,7 @@ The original motivation was to streamline the process of accepting a Dependabot 
 
 ## How It Works
 
-> ![NOTE]
+> [!NOTE]
 > The action will quietly do nothing if a `release/*` label is not present on the PR.
 
 1. The action triggers when a pull request is closed and merged.
