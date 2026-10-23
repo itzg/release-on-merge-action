@@ -8,6 +8,11 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
+      # NOTE:
+      # This workflow needs a checkout since it executes itself as the action
+      - name: Checkout
+        uses: actions/checkout@v7
+
       - name: Run Release on Merge Action
         id: release-on-merge
         uses: ./
