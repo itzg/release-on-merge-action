@@ -5,6 +5,7 @@ import ReleaseOnMerge from "../src/ReleaseOnMerge";
 
 vi.mock("@actions/core", () => ({
   debug: vi.fn(),
+  error: vi.fn(),
   info: vi.fn(),
   setFailed: vi.fn(),
   setOutput: vi.fn(),
@@ -92,6 +93,35 @@ describe("ReleaseOnMerge", () => {
       generate_release_notes: true,
     });
     expect(core.info).toHaveBeenCalledWith("Created release v1.2.4");
+    expect(core.setOutput).toHaveBeenCalledWith("release-version", "v1.2.4");
+    expect(core.setFailed).not.toHaveBeenCalled();
+  });
+
+  it("should create a patch release for a merged pull_request_target event", async () => {
+    const mockContext = createGithubContext({
+      eventName: "pull_request_target",
+      merged: true,
+      labels: [{ name: "release/patch" }],
+    });
+
+    mockGetLatestRelease.mockResolvedValueOnce({
+      data: { name: "v1.2.3" },
+    });
+    mockCreateRelease.mockResolvedValueOnce({
+      data: { id: 101 },
+    });
+
+    const action = new ReleaseOnMerge(mockOctokit, mockContext);
+    await action.run();
+
+    expect(mockGetLatestRelease).toHaveBeenCalledWith({ owner, repo });
+    expect(mockCreateRelease).toHaveBeenCalledWith({
+      owner,
+      repo,
+      tag_name: "v1.2.4",
+      name: "v1.2.4",
+      generate_release_notes: true,
+    });
     expect(core.setOutput).toHaveBeenCalledWith("release-version", "v1.2.4");
     expect(core.setFailed).not.toHaveBeenCalled();
   });
@@ -261,7 +291,7 @@ describe("ReleaseOnMerge", () => {
     expect(core.setFailed).not.toHaveBeenCalled();
   });
 
-  it("should do nothing if event is not pull_request", async () => {
+  it("should do nothing if event is not a supported pull request event", async () => {
     const mockContext = createGithubContext({
       eventName: "push",
       merged: true,

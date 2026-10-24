@@ -36986,15 +36986,17 @@ class ReleaseOnMerge {
         this.dryRun = dryRun;
     }
     async run() {
+        const eventName = this.context.eventName;
         try {
             // if current event is a merged PR
-            debug("Current event is a merged PR");
-            if (this.context.eventName === "pull_request" &&
+            debug(`Evaluating if event is a merged PR: eventName=${eventName}, merged=${this.context.payload.pull_request?.merged}`);
+            if ((eventName === "pull_request" || eventName === "pull_request_target") &&
                 this.context.payload.pull_request?.merged) {
                 debug("Pull request is merged");
                 // check labels on the PR
                 debug("Checking labels on the PR");
                 const labels = this.context.payload.pull_request?.labels?.map((label) => label.name) ?? [];
+                debug(`Labels found on the PR: ${labels.join(", ")}`);
                 // if any are "release/{type}", where {type} is one of "major", "minor", or "patch"
                 const releaseLabel = labels
                     .filter((label) => label.startsWith("release/"))
@@ -37006,9 +37008,10 @@ class ReleaseOnMerge {
                         case "major":
                         case "minor":
                         case "patch":
+                            debug(`Valid release type: ${type}`);
                             break;
                         default:
-                            debug(`Invalid release type: ${type}`);
+                            error(`Invalid release type: ${type}`);
                             return;
                     }
                     await this.handleRelease(type);

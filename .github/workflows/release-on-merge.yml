@@ -1,7 +1,9 @@
 name: Release on merge
 
 on:
-  pull_request_target:
+  # NOTE:
+  # Do NOT use pull_request_target since this particular workflow needs to checkout its own code
+  pull_request:
     types: [closed]
 
 jobs:

@@ -17,11 +17,12 @@ export default class ReleaseOnMerge {
   }
 
   async run(): Promise<void> {
+    const eventName = this.context.eventName;
     try {
       // if current event is a merged PR
-      core.debug("Current event is a merged PR");
+      core.debug(`Evaluating if event is a merged PR: eventName=${eventName}, merged=${this.context.payload.pull_request?.merged}`);
       if (
-        this.context.eventName === "pull_request" &&
+        (eventName === "pull_request" || eventName === "pull_request_target") &&
         this.context.payload.pull_request?.merged
       ) {
         core.debug("Pull request is merged");
@@ -31,6 +32,7 @@ export default class ReleaseOnMerge {
         const labels:string[] = this.context.payload.pull_request?.labels?.map(
             (label: { name: string }) => label.name
         ) ?? [];
+        core.debug(`Labels found on the PR: ${labels.join(", ")}`);
 
         // if any are "release/{type}", where {type} is one of "major", "minor", or "patch"
         const releaseLabel = labels
@@ -44,9 +46,10 @@ export default class ReleaseOnMerge {
               case "major":
               case "minor":
               case "patch":
-                break
+                core.debug(`Valid release type: ${type}`);
+                break;
               default:
-                core.debug(`Invalid release type: ${type}`);
+                core.error(`Invalid release type: ${type}`);
                 return;
             }
 
